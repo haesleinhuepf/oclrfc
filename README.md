@@ -2,7 +2,7 @@
 
 [cle](https://github.com/clEsperanto/pyclesperanto_prototype) meets [sklearn](https://scikit-learn.org/stable/)
 
-To see OpenCL-based Random Forest Classifiers check out the [demo-notebook](https://nbviewer.jupyter.org/github/haesleinhuepf/oclrfc/blob/master/demo/demo.ipynb).
+To see OpenCL-based Random Forest Classifiers in action, check out the [demo-notebook](https://nbviewer.jupyter.org/github/haesleinhuepf/oclrfc/blob/master/demo/demo.ipynb).
 
 ## Installation
 
