@@ -2,7 +2,7 @@
 
 [cle](https://github.com/clEsperanto/pyclesperanto_prototype) meets [sklearn](https://scikit-learn.org/stable/)
 
-See the [demo-notebook](https://nbviewer.jupyter.org/github/haesleinhuepf/oclrfc/blob/master/demo/demo.ipynb)
+To see OpenCL-based Random Forest Classifiers check out the [demo-notebook](https://nbviewer.jupyter.org/github/haesleinhuepf/oclrfc/blob/master/demo/demo.ipynb).
 
 ## Installation
 
@@ -19,8 +19,8 @@ the coverage at least stays the same before you submit a pull request.
 
 ## License
 
-Distributed under the terms of the [BSD-3] license,
-"napari-oclrfc" is free and open source software
+Distributed under the terms of the BSD-3 license,
+"oclrfc" is free and open source software
 
 ## Issues
 
