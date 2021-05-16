@@ -137,7 +137,7 @@ class OCLRandomForestClassifier():
         file1 = open(filename, "w")
         file1.write("/*\n")
         file1.write("OpenCL RandomForestClassifier\n")
-        file1.write(self.FEATURE_SPECIFICATION_KEY + self.feature_specification)
+        file1.write(self.FEATURE_SPECIFICATION_KEY + self.feature_specification + "\n")
         file1.write("num_classes = " + str(self.classifier.n_classes_) + "\n")
         file1.write("num_features = " + str(self.num_features) + "\n")
         file1.write("max_depth = " + str(self.max_depth) + "\n")
@@ -166,9 +166,8 @@ class OCLRandomForestClassifier():
         with open(opencl_filename) as f:
             line = ""
             count = 0
-            while line != "*/" and line is not None and count < 3:
+            while line != "*/" and line is not None and count < 25:
                 count = count + 1
-                f.readline()
                 line = f.readline()
                 if line.startswith(self.FEATURE_SPECIFICATION_KEY):
                     return line.replace(self.FEATURE_SPECIFICATION_KEY, "")
