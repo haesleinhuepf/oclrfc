@@ -10,11 +10,10 @@ that fit well to the the image data you would like to process.
 
 ## Installation
 
-You can install `napari-oclrfc` via [pip]:
+You can install `oclrfc` via [pip]. Note: you also need [pyopencl](https://documen.tician.de/pyopencl/).
 
-    git clone https://github.com/haesleinhuepf/oclrfc
-    cd oclrfc
-    pip install -e .
+    conda install pyopencl
+    pip install oclrfc
 
 ## Contributing
 
