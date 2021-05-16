@@ -7,11 +7,24 @@ import os
 
 
 class OCLRandomForestClassifier():
-    def __init__(self, opencl_filename = "temp.cl", max_depth: int = 2, num_trees: int = 10):
+    def __init__(self, opencl_filename = "temp.cl", max_depth: int = 2, num_ensembles: int = 10):
+        """
+        A RandomForestClassifier that converts itself to OpenCL after training.
+
+        Parameters
+        ----------
+        opencl_filename : str (optional)
+        max_depth : int (optional)
+        num_ensembles : int (optional)
+
+        See Also
+        --------
+            https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
+        """
         self.FEATURE_SPECIFICATION_KEY = "feature_specification = "
 
         self.max_depth = max_depth
-        self.num_trees = num_trees
+        self.num_ensembles = num_ensembles
 
         self.opencl_file = opencl_filename
         self.classifier = None
@@ -32,19 +45,18 @@ class OCLRandomForestClassifier():
         image : ndarray (optional)
             2D or 3D image. If features are provided as string, the feature stack will be generated from this image.
         """
+        # make features and convert in the right format
         features = self._make_features(features, image)
-
         self.num_features = len(features)
-
         X, y = self._to_np(features, ground_truth)
 
-        self.classifier = RandomForestClassifier(max_depth=self.max_depth, n_estimators=self.num_trees, random_state=0)
-
+        self.classifier = RandomForestClassifier(max_depth=self.max_depth, n_estimators=self.num_ensembles, random_state=0)
         self.classifier.fit(X, y)
 
+        # save as OpenCL
         self.to_opencl_file(self.opencl_file)
 
-    def predict(self, features, image=None):
+    def predict(self, features=None, image=None):
         """
         Apply an OpenCL-based RandomForestClassifier to a feature stack.
 
@@ -60,12 +72,14 @@ class OCLRandomForestClassifier():
         -------
         ndimage, 2D or 3D label image with pixel intensity corresponding to classification
         """
+        if features is None:
+            features = self.feature_specification
 
         features = self._make_features(features, image)
 
         import pyclesperanto_prototype as cle
 
-        output = cle.create_like(features[0])
+        output = cle.create_labels_like(features[0])
 
         parameters = {}
         for i, f in enumerate(features):
@@ -127,7 +141,7 @@ class OCLRandomForestClassifier():
         file1.write("num_classes = " + str(self.classifier.n_classes_) + "\n")
         file1.write("num_features = " + str(self.num_features) + "\n")
         file1.write("max_depth = " + str(self.max_depth) + "\n")
-        file1.write("num_trees = " + str(self.num_trees) + "\n")
+        file1.write("num_trees = " + str(self.num_ensembles) + "\n")
         file1.write("*/\n")
         file1.write(opencl_code)
         file1.close()
@@ -151,7 +165,10 @@ class OCLRandomForestClassifier():
 
         with open(opencl_filename) as f:
             line = ""
-            while line != "*/":
+            count = 0
+            while line != "*/" and line is not None and count < 3:
+                count = count + 1
+                f.readline()
                 line = f.readline()
                 if line.startswith(self.FEATURE_SPECIFICATION_KEY):
                     return line.replace(self.FEATURE_SPECIFICATION_KEY, "")

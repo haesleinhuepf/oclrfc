@@ -3,13 +3,13 @@ import numpy as np
 
 
 class DecisionTreeClassifierToOpenCLConverter:
-    def __init__(self, clf):
-        self.n_nodes = clf.tree_.node_count
-        self.children_left = clf.tree_.children_left
-        self.children_right = clf.tree_.children_right
-        self.feature = clf.tree_.feature
-        self.threshold = clf.tree_.threshold
-        self.class_weight = clf.tree_.value
+    def __init__(self, decistion_tree_classifier):
+        self.n_nodes = decistion_tree_classifier.tree_.node_count
+        self.children_left = decistion_tree_classifier.tree_.children_left
+        self.children_right = decistion_tree_classifier.tree_.children_right
+        self.feature = decistion_tree_classifier.tree_.feature
+        self.threshold = decistion_tree_classifier.tree_.threshold
+        self.class_weight = decistion_tree_classifier.tree_.value
 
         self.node_depth = np.zeros(shape=self.n_nodes, dtype=np.int64)
         self.is_leaves = np.zeros(shape=self.n_nodes, dtype=bool)
@@ -78,10 +78,21 @@ def _ocl_footer(num_classes):
     return output
 
 
-def RFC_to_OCL(clf):
-    trees = clf.estimators_
-    num_classes = clf.n_classes_
-    num_inputs = clf.n_features_
+def RFC_to_OCL(random_forest_classifier):
+    """
+    Converte a scikit-learn RandomForestClassifier to OpenCL code that mimiks the original
+    
+    Parameters
+    ----------
+    random_forest_classifier
+
+    Returns
+    -------
+
+    """
+    trees = random_forest_classifier.estimators_
+    num_classes = random_forest_classifier.n_classes_
+    num_inputs = random_forest_classifier.n_features_
 
     output = _ocl_header(num_inputs, num_classes)
     for tree in trees:
