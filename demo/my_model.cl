@@ -1,8 +1,10 @@
-// OpenCL RandomForestClassifier
-// num_classes = 3
-// num_features = 3
-// max_depth = 2
-// num_trees = 10
+/*
+OpenCL RandomForestClassifier
+feature_specification = original gaussian_blur=2 sobel_of_gaussian_blur=2num_classes = 3
+num_features = 3
+max_depth = 2
+num_trees = 10
+*/
 __kernel void predict (IMAGE_in0_TYPE in0, IMAGE_in1_TYPE in1, IMAGE_in2_TYPE in2, IMAGE_out_TYPE out) {
  sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_NEAREST;
  const int x = get_global_id(0);
