@@ -170,7 +170,7 @@ class OCLRandomForestClassifier():
                 count = count + 1
                 line = f.readline()
                 if line.startswith(self.FEATURE_SPECIFICATION_KEY):
-                    return line.replace(self.FEATURE_SPECIFICATION_KEY, "")
+                    return line.replace(self.FEATURE_SPECIFICATION_KEY, "").replace("\n","")
 
     def _to_np(self, features, ground_truth=None):
         """

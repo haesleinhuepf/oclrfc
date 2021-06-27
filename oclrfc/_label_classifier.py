@@ -1,7 +1,7 @@
 from ._classifier import OCLRandomForestClassifier
 import numpy as np
 
-class OCLRandomForestLabelClassfier():
+class OCLRandomForestLabelClassifier():
     def __init__(self, opencl_filename="temp.cl", max_depth: int = 2, num_ensembles: int = 10):
         """
         A RandomForestClassifier for label classification that converts itself to OpenCL after training.
@@ -21,7 +21,7 @@ class OCLRandomForestLabelClassfier():
         self.classifier = OCLRandomForestClassifier(opencl_filename=opencl_filename, max_depth=max_depth,
                                                     num_ensembles=num_ensembles)
 
-        self.feature_specification = self.classifier._get_feature_specification_from_opencl_file(opencl_filename)
+        self.classifier.feature_specification = self.classifier._get_feature_specification_from_opencl_file(opencl_filename)
 
     def train(self, features: str, labels, sparse_annotation, image=None):
         """
@@ -47,12 +47,11 @@ class OCLRandomForestLabelClassfier():
         self.classifier.feature_specification = features
         self.classifier.train(selected_features, gt)
 
-    def predict(self, features: str, labels, image=None):
+    def predict(self, labels, image=None):
         """
 
         Parameters
         ----------
-        features: Comma separated string (see train for detailed documentation)
         labels: label image
         image: intensity image
 
@@ -61,7 +60,7 @@ class OCLRandomForestLabelClassfier():
         label image representing a semantic segmentation: pixel intensities represent label class
 
         """
-        selected_features, gt = self._make_features(features, labels, None, image)
+        selected_features, gt = self._make_features(self.classifier.feature_specification, labels, None, image)
 
         import pyclesperanto_prototype as cle
 
