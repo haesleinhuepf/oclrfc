@@ -141,3 +141,5 @@ cython_debug/
 /.idea/
 .DS_STORE
 demo/temp.cl
+*.cl
+*.cl
