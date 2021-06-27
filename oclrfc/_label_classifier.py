@@ -35,10 +35,11 @@ class OCLRandomForestLabelClassifier():
             'mass_center_x', 'mass_center_y', 'mass_center_z',
             'centroid_x', 'centroid_y', 'centroid_z',
             'max_distance_to_centroid', 'max_distance_to_mass_center',
-            'mean_max_distance_to_centroid_ratio', 'mean_max_distance_to_mass_center_ratio'
+            'mean_max_distance_to_centroid_ratio', 'mean_max_distance_to_mass_center_ratio',
+            'touching_neighbor_count', 'average_distance_of_touching_neighbors', 'average_distance_of_n_nearest_neighbors'
         labels: label image
         sparse_annotation: label image with annotations. If one label is annotated with multiple classes, the
-            maximimum is considered while training.
+            maximum is considered while training.
         image: intensity image (optional)
 
         """
@@ -86,24 +87,71 @@ class OCLRandomForestLabelClassifier():
         import pyclesperanto_prototype as cle
         pixel_statistics = cle.statistics_of_background_and_labelled_pixels(image, labels)
 
-        # determine ground truth
-        annotation_statistics = cle.statistics_of_background_and_labelled_pixels(annotation, labels)
-        classification_gt = annotation_statistics['max_intensity']
+        if annotation is not None:
+            # determine ground truth
+            annotation_statistics = cle.statistics_of_background_and_labelled_pixels(annotation, labels)
+            classification_gt = annotation_statistics['max_intensity']
+            classification_gt[0] = 0
+        else:
+            classification_gt = None
 
-        table, gt = self._select_features(annotation_statistics, features.split(','), classification_gt)
+        feature_list = features.split(',')
+
+        table, gt = self._select_features(pixel_statistics, feature_list, labels, classification_gt)
 
         return table, gt
 
-    def _select_features(self, all_features, features_to_select, ground_truth=None):
+    def _make_touch_matrix(self, labels, touch_matrix = None):
+        if touch_matrix is None:
+            import pyclesperanto_prototype as cle
+            touch_matrix = cle.generate_touch_matrix(labels)
+        return touch_matrix
 
+    def _make_distance_matrix(self, labels, distance_matrix = None):
+        if distance_matrix is None:
+            import pyclesperanto_prototype as cle
+            centroids = cle.centroids_of_labels(labels)
+            distance_matrix = cle.generate_distance_matrix(centroids, centroids)
+            cle.set_column(distance_matrix, 0, 0)
+            cle.set_row(distance_matrix, 0, 0)
+
+        return distance_matrix
+
+    def _select_features(self, all_features, features_to_select, labels, ground_truth=None):
+
+        import pyclesperanto_prototype as cle
         result = []
+        touch_matrix = None
+        distance_matrix = None
+        mask = None
+
         if ground_truth is not None:
             mask = ground_truth > 0
-            for key in features_to_select:
-                result.append(np.asarray([all_features[key][mask]]))
 
+        for key in features_to_select:
+            vector = None
+
+            if key in all_features.keys():
+                vector = np.asarray([0] + all_features[key])
+            elif key == "touching_neighbor_count":
+                touch_matrix = self._make_touch_matrix(labels, touch_matrix)
+                vector = cle.pull(cle.count_touching_neighbors(touch_matrix))[0]
+            elif key == "average_distance_of_touching_neighbors":
+                touch_matrix = self._make_touch_matrix(labels, touch_matrix)
+                distance_matrix = self._make_distance_matrix(labels, distance_matrix)
+                vector = cle.pull(cle.average_distance_of_touching_neighbors(distance_matrix, touch_matrix))[0]
+            elif key.startswith("average_distance_of_n_nearest_neighbors="):
+                n = int(key.replace("average_distance_of_n_nearest_neighbors=", ""))
+                distance_matrix = self._make_distance_matrix(labels, distance_matrix)
+                vector = cle.pull(cle.average_distance_of_n_shortest_distances(distance_matrix, n=n))[0]
+
+            if vector is not None:
+                if ground_truth is not None:
+                    result.append(np.asarray([vector[mask]]))
+                else:
+                    result.append(np.asarray([vector]))
+
+        if ground_truth is not None:
             return result, ground_truth[mask]
         else:
-            for key in features_to_select:
-                result.append(np.asarray([all_features[key]]))
             return result, None
