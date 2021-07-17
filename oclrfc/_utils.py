@@ -1,20 +1,22 @@
+from typing import Union
+
 import pyclesperanto_prototype as cle
 import inspect
 import pyopencl
+from ._feature_sets import PredefinedFeatureSet
 
-def generate_feature_stack(image, features_specification : str = None):
+def generate_feature_stack(image, features_specification : Union[str, PredefinedFeatureSet] = None):
     """
     Creates a feature stack from a given image.
-
-    Todo: enable definition of which features.
 
     Parameters
     ----------
     image : ndarray
         2D or 3D image to generate a feature stack from
-    features_specification : str
+    features_specification : str or PredefinedFeatureSet
         a space-separated list of features, e.g.
-        original gaussian=4 sobel_of_gaussian=4
+        original gaussian=4 sobel_of_gaussian=4 or a
+        PredefinedFeatureSet
 
     Returns
     -------
@@ -34,6 +36,8 @@ def generate_feature_stack(image, features_specification : str = None):
         ]
 
         return stack
+    if isinstance(features_specification, PredefinedFeatureSet):
+        features_specification = features_specification.value
 
     while "  " in features_specification:
         features_specification = features_specification.replace("  ", " ")
@@ -75,8 +79,6 @@ def generate_feature_stack(image, features_specification : str = None):
                     generated_features[operation+"="+str(numeric_parameter)] = new_image
 
             result_features.append(generated_features[operation+"="+str(numeric_parameter)])
-
-    print("generated features: ", list(generated_features.keys()))
 
     return result_features
 
