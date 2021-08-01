@@ -11,7 +11,7 @@ setuptools.setup(
     description="OpenCL-based Random Forest Classifier",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/haesleinhupef/oclrfc",
+    url="https://github.com/haesleinhuepf/oclrfc",
     packages=setuptools.find_packages(),
     include_package_data=True,
     install_requires=["numpy!=1.19.4", "scikit-learn>=0.24.2", "pyclesperanto-prototype>=0.8.0"],
