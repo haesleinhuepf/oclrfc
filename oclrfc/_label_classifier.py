@@ -61,11 +61,13 @@ class OCLRandomForestLabelClassifier():
         label image representing a semantic segmentation: pixel intensities represent label class
 
         """
+        import pyclesperanto_prototype as cle
+        labels = cle.push(labels)
+
         selected_features, gt = self._make_features(self.classifier.feature_specification, labels, None, image)
 
-        import pyclesperanto_prototype as cle
 
-        output = cle.create(selected_features[0].shape)
+        output = cle.create_like(selected_features[0].shape)
         parameters = {}
         for i, f in enumerate(selected_features):
             parameters['in' + str(i)] = cle.push(f)
