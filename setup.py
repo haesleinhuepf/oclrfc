@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="oclrfc",
-    version="0.4.0",
+    version="0.4.1",
     author="haesleinhuepf",
     author_email="robert.haase@tu-dresden.de",
     description="OpenCL-based Random Forest Classifier",
